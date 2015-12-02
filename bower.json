@@ -1,0 +1,25 @@
+{
+  "name": "neurosync-jquery",
+  "version": "1.0.5",
+  "homepage": "https://github.com/ClickerMonkey/neurosync-jquery",
+  "authors": [
+    "Philip Diffenderfer <pdiffenderfer@gmail.com>"
+  ],
+  "description": "A neurosync binding to jquery - implementing Neuro.rest",
+  "main": "build/neurosync-jquery.js",
+  "keywords": [
+    "javascript",
+    "orm",
+    "offline",
+    "neurosync",
+    "jquery"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
