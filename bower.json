@@ -1,17 +1,17 @@
 {
-  "name": "neurosync-jquery",
+  "name": "rekord-jquery",
   "version": "1.1.1",
-  "homepage": "https://github.com/ClickerMonkey/neurosync-jquery",
+  "homepage": "https://github.com/Rekord/rekord-jquery",
   "authors": [
     "Philip Diffenderfer <pdiffenderfer@gmail.com>"
   ],
-  "description": "A neurosync binding to jquery - implementing Neuro.rest",
-  "main": "build/neurosync-jquery.js",
+  "description": "A rekord binding to jquery - implementing Rekord.rest",
+  "main": "build/rekord-jquery.js",
   "keywords": [
     "javascript",
     "orm",
     "offline",
-    "neurosync",
+    "rekord",
     "jquery"
   ],
   "license": "MIT",

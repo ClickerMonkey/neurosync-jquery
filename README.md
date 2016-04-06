@@ -1,5 +1,5 @@
-# neurosync-jquery
+# rekord-jquery
 
-A neurosync binding to jquery - implementing Neuro.rest.
+A rekord binding to jquery - implementing Rekord.rest.
 
-The easiest way to install is by using bower via `bower install neurosync-jquery`.
+The easiest way to install is by using bower via `bower install rekord-jquery`.

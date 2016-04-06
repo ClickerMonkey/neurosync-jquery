@@ -1,7 +1,7 @@
 (function ($, global, undefined)
 {
 
-  Neuro.rest = function(database)
+  Rekord.rest = function(database)
   {
 
     function removeTrailingSlash(x)
@@ -11,9 +11,9 @@
 
     function execute( method, data, url, success, failure, offlineValue )
     {
-      Neuro.debug( Neuro.Debugs.REST, this, method, url, data );
+      Rekord.debug( Rekord.Debugs.REST, this, method, url, data );
 
-      if ( Neuro.forceOffline )
+      if ( Rekord.forceOffline )
       {
         failure( offlineValue, 0 );
       }

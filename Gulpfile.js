@@ -7,11 +7,11 @@ var gutil = require('gulp-util');
 var shell = require('gulp-shell');
 
 var build = {
-  filename: 'neurosync-jquery.js',
-  minified: 'neurosync-jquery.min.js',
+  filename: 'rekord-jquery.js',
+  minified: 'rekord-jquery.min.js',
   output: './build/',
   include: [
-    './src/neurosync-jquery.js'
+    './src/rekord-jquery.js'
   ]
 };
 
