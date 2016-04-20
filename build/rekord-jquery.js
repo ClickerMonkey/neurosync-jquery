@@ -1,9 +1,8 @@
 (function ($, global, undefined)
 {
 
-  Rekord.rest = function(database)
+  Rekord.setRest(function(database)
   {
-
     function removeTrailingSlash(x)
     {
       return x.charAt(x.length - 1) === '/' ? x.substring(0, x.length - 1) : x;
@@ -19,17 +18,17 @@
       }
       else
       {
-        function onRestSuccess(data, textStatus, jqXHR) 
+        function onRestSuccess(data, textStatus, jqXHR)
         {
           success( data );
         }
 
-        function onRestError(jqXHR, textStatus, errorThrown) 
+        function onRestError(jqXHR, textStatus, errorThrown)
         {
           failure( null, jqXHR.status );
         }
 
-        var options = 
+        var options =
         {
           method: method,
           data: data,
@@ -43,7 +42,7 @@
         $.ajax( options );
       }
     }
-    
+
     return {
       all: function( success, failure )
       {
@@ -65,16 +64,14 @@
       {
         execute( 'DELETE', undefined, removeTrailingSlash( database.api + model.$key() ), success, failure, {} );
       },
-      query: function( query, success, failure )
+      query: function( url, query, success, failure )
       {
-        var method = query.method || 'GET';
-        var data = query.data || undefined;
-        var url = query.url || query;
+        var method = query ? 'POST' : 'GET';
 
-        execute( method, data, url, success, failure );
+        execute( method, query, url, success, failure );
       }
     };
 
-  };
+  }, true );
 
 })( jQuery, this );
