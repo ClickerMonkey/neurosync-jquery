@@ -1,48 +1,48 @@
-(function ($, global, undefined)
+(function (global, Rekord, $, undefined)
 {
 
-  Rekord.setRest(function(database)
+  function removeTrailingSlash(x)
   {
-    function removeTrailingSlash(x)
+    return x.charAt(x.length - 1) === '/' ? x.substring(0, x.length - 1) : x;
+  }
+
+  function execute( method, data, url, success, failure, offlineValue )
+  {
+    Rekord.debug( Rekord.Debugs.REST, this, method, url, data );
+
+    if ( Rekord.forceOffline )
     {
-      return x.charAt(x.length - 1) === '/' ? x.substring(0, x.length - 1) : x;
+      failure( offlineValue, 0 );
     }
-
-    function execute( method, data, url, success, failure, offlineValue )
+    else
     {
-      Rekord.debug( Rekord.Debugs.REST, this, method, url, data );
-
-      if ( Rekord.forceOffline )
+      var onRestSuccess = function(data, textStatus, jqXHR)
       {
-        failure( offlineValue, 0 );
-      }
-      else
+        success( data );
+      };
+
+      var onRestError = function(jqXHR, textStatus, errorThrown)
       {
-        function onRestSuccess(data, textStatus, jqXHR)
-        {
-          success( data );
-        }
+        failure( null, jqXHR.status );
+      };
 
-        function onRestError(jqXHR, textStatus, errorThrown)
-        {
-          failure( null, jqXHR.status );
-        }
+      var options =
+      {
+        method: method,
+        data: data,
+        url: url,
+        success: onRestSuccess,
+        failure: onRestError,
+        cache: false,
+        dataType: 'json'
+      };
 
-        var options =
-        {
-          method: method,
-          data: data,
-          url: url,
-          success: onRestSuccess,
-          failure: onRestError,
-          cache: false,
-          dataType: 'json'
-        };
-
-        $.ajax( options );
-      }
+      $.ajax( options );
     }
+  }
 
+  function RestFactory(database)
+  {
     return {
       all: function( success, failure )
       {
@@ -71,7 +71,8 @@
         execute( method, query, url, success, failure );
       }
     };
+  }
 
-  }, true );
+  Rekord.setRest( RestFactory, true );
 
-})( jQuery, this );
+})( this, this.Rekord, this.jQuery );
