@@ -1,3 +1,4 @@
+/* rekord-jquery 1.4.0 - A rekord binding to jquery - implementing Rekord.rest by Philip Diffenderfer */
 (function (global, Rekord, $, undefined)
 {
   var noop = Rekord.noop;
