@@ -1,9 +1,10 @@
 {
   "name": "rekord-jquery",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "A rekord binding to jquery - implementing Rekord.rest",
   "author": "Philip Diffenderfer",
   "license": "MIT",
+  "main": "build/rekord-jquery.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/Rekord/rekord-jquery.git"
