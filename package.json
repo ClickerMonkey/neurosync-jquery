@@ -1,6 +1,6 @@
 {
   "name": "rekord-jquery",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "A rekord binding to jquery - implementing Rekord.rest",
   "author": "Philip Diffenderfer",
   "license": "MIT",
@@ -29,6 +29,7 @@
     "jshint": "^2.9.2"
   },
   "dependencies": {
+    "jquery": "*",
     "rekord": "~1.4.0"
   }
 }
