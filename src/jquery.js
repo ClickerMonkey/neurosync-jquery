@@ -4,7 +4,7 @@
   if (typeof define === 'function' && define.amd) // jshint ignore:line
   {
     // AMD. Register as an anonymous module.
-    define(['Rekord', 'jQuery'], function(Rekord, jQuery) { // jshint ignore:line
+    define(['rekord', 'jQuery'], function(Rekord, jQuery) { // jshint ignore:line
       return factory(root, Rekord, jQuery);
     });
   }
@@ -13,7 +13,7 @@
     // Node. Does not work with strict CommonJS, but
     // only CommonJS-like environments that support module.exports,
     // like Node.
-    module.exports = factory(global, require('Rekord'), require('jQuery'));  // jshint ignore:line
+    module.exports = factory(global, require('rekord'), require('jQuery'));  // jshint ignore:line
   }
   else
   {
