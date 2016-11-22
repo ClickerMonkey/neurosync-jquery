@@ -1,220 +1,222 @@
 
 module('jQuery');
 
-test( 'custom option', function(assert)
-{
-  var prefix = 'custom_option_';
-
-  $.result = null;
-
-  Rekord.jQuery.options.custom = 'Hello World!';
-
-  var Task = Rekord({
-    name: prefix + 'task',
-    fields: ['name', 'done'],
-    api: 'task'
-  });
-
-  var t0 = Task.create({id: 2, name: 't0', done:false});
-
-  deepEqual( $.lastOptions.data, {id: 2, name: 't0', done: false} );
-  deepEqual( $.lastOptions.method, 'POST' );
-  deepEqual( $.lastOptions.custom, 'Hello World!' );
-});
-
-test( 'override option', function(assert)
-{
-  var prefix = 'override_option_';
-
-  $.result = null;
-
-  Rekord.jQuery.options.cache = true;
-
-  var Task = Rekord({
-    name: prefix + 'task',
-    fields: ['name', 'done'],
-    api: 'task'
-  });
-
-  var t0 = Task.create({id: 2, name: 't0', done:false});
-
-  deepEqual( $.lastOptions.data, {id: 2, name: 't0', done: false} );
-  deepEqual( $.lastOptions.method, 'POST' );
-  deepEqual( $.lastOptions.cache, true );
-});
-
-test( 'adjust options', function(assert)
-{
-  var prefix = 'adjust_options_';
-
-  $.result = null;
-
-  Rekord.jQuery.adjustOptions = function(options)
-  {
-    options.another = 'yes';
-  };
-
-  var Task = Rekord({
-    name: prefix + 'task',
-    fields: ['name', 'done'],
-    api: 'task'
-  });
-
-  var t0 = Task.create({id: 2, name: 't0', done:false});
-
-  deepEqual( $.lastOptions.data, {id: 2, name: 't0', done: false} );
-  deepEqual( $.lastOptions.method, 'POST' );
-  deepEqual( $.lastOptions.another, 'yes' );
-});
+// TODO Rekord.jQuery.adjustOptions
+// TODO Rekord.jQuery.buildURL
+// TODO Rekord.jQuery.ajax
+// TODO override url/method through options
+// TODO override url/method through global Rekord.jQuery.options
+// TODO params
+// TODO timeout
+// TODO headers
 
 test( 'all', function(assert)
 {
+  var done = assert.async();
   var prefix = 'all_';
-
-  $.result = [
-    {id: 2, name: 't2', done: 1},
-    {id: 3, name: 't3', done: 0}
-  ];
 
   var Task = Rekord({
     name: prefix + 'task',
-    fields: ['name', 'done'],
-    api: 'task',
-    load: Rekord.Load.All
+    fields: ['completed', 'title', 'userId'],
+    api: 'http://jsonplaceholder.typicode.com/todos/',
+    load: Rekord.Load.All,
+    cache: Rekord.Cache.None
   });
 
-  strictEqual( Task.all().length, 2 );
-  deepEqual( $.lastOptions.method, 'GET' );
+  expect(1);
+
+  Task.ready(function()
+  {
+    strictEqual( Task.all().length, 200 );
+    done();
+  });
 });
 
 test( 'get', function(assert)
 {
+  var done = assert.async();
   var prefix = 'get_';
-
-  $.result = {id: 2, name: 't2', done: 1};
 
   var Task = Rekord({
     name: prefix + 'task',
-    fields: ['name', 'done'],
-    api: 'task',
-    load: Rekord.Load.All
+    fields: ['completed', 'title', 'userId'],
+    api: 'http://jsonplaceholder.typicode.com/todos/'
   });
 
-  var t2 = Task.fetch(2);
+  expect(2);
 
-  strictEqual( t2.name, 't2' );
-  deepEqual( $.lastOptions.method, 'GET' );
+  Task.fetch( 2, {}, function(t2)
+  {
+    strictEqual( t2.title, 'quis ut nam facilis et officia qui' );
+    strictEqual( t2.completed, false );
+    done();
+  });
 });
 
 test( 'create', function(assert)
 {
+  var done = assert.async();
   var prefix = 'create_';
-
-  $.result = {done: false};
 
   var Task = Rekord({
     name: prefix + 'task',
-    fields: ['name', 'done'],
-    api: 'task'
+    fields: ['completed', 'title', 'userId'],
+    api: 'http://jsonplaceholder.typicode.com/todos/'
   });
 
-  var t0 = Task.create({id: 2, name: 't0'});
+  var t0 = Task.create({id: 201, title: 't0', completed: false});
 
-  deepEqual( $.lastOptions.data, {id: 2, name: 't0', done: false} );
-  deepEqual( $.lastOptions.method, 'POST' );
-  strictEqual( t0.done, false );
+  expect(1);
+
+  t0.$once( Rekord.Model.Events.RemoteSaves, function()
+  {
+    strictEqual( t0.title, 't0' );
+    done();
+  });
 });
+
 
 test( 'update', function(assert)
 {
+  var done = assert.async();
   var prefix = 'update_';
-
-  $.result = null;
 
   var Task = Rekord({
     name: prefix + 'task',
-    fields: ['name', 'done'],
-    api: 'task'
+    fields: ['completed', 'title', 'userId'],
+    api: 'http://jsonplaceholder.typicode.com/todos/'
   });
 
-  var t0 = Task.create({id: 2, name: 't0', done: false});
+  var t0 = Task.create({id: 2, title: 't0', completed: false});
 
-  deepEqual( $.lastOptions.data, {id: 2, name: 't0', done: false} );
-  deepEqual( $.lastOptions.method, 'POST' );
+  expect(2);
 
-  t0.name = 't0a';
-  t0.$save();
+  t0.$once( Rekord.Model.Events.RemoteSaves, function()
+  {
+    strictEqual( t0.title, 't0' );
 
-  deepEqual( $.lastOptions.data, {name: 't0a'} );
-  deepEqual( $.lastOptions.method, 'PUT' );
+    t0.title = 't0a';
+    t0.$save().then(function()
+    {
+      strictEqual( t0.title, 't0a' );
+      done();
+    });
+  });
 });
 
 test( 'delete', function(assert)
 {
+  var done = assert.async();
   var prefix = 'delete_';
 
-  $.result = null;
-
   var Task = Rekord({
     name: prefix + 'task',
-    fields: ['name', 'done'],
-    api: 'task'
+    fields: ['completed', 'title', 'userId'],
+    api: 'http://jsonplaceholder.typicode.com/todos/'
   });
 
-  var t0 = Task.create({id: 2, name: 't0', done: false});
+  expect(4);
 
-  deepEqual( $.lastOptions.data, {id: 2, name: 't0', done: false} );
-  deepEqual( $.lastOptions.method, 'POST' );
+  Task.fetch( 2, {}, function(t2)
+  {
+    strictEqual( t2.title, 'quis ut nam facilis et officia qui' );
+    strictEqual( t2.completed, false );
+    ok( t2.$isSaved() );
 
-  t0.$remove();
-
-  deepEqual( $.lastOptions.data, undefined );
-  deepEqual( $.lastOptions.method, 'DELETE' );
+    t2.$remove().then(function()
+    {
+      ok( t2.$isDeleted() );
+      done();
+    });
+  });
 });
 
-test( 'search get', function(assert)
+test( 'model var', function(assert)
 {
-  var prefix = 'search_get_';
+  var done = assert.async();
+  var prefix = 'model_var_';
 
-  $.result = [
-    {id: 2, name: 't2', done: 1},
-    {id: 3, name: 't3', done: 0}
-  ];
-
-  var Task = Rekord({
-    name: prefix + 'task',
-    fields: ['name', 'done'],
-    api: 'task'
+  var Post = Rekord({
+    name: prefix + 'post',
+    fields: ['title', 'body', 'userId'],
+    api: 'http://jsonplaceholder.typicode.com/posts/'
   });
 
-  var search = Task.search('/my/tasks');
-  var promise = search.$run();
-  var results = search.$results;
+  var Comment = Rekord({
+    name: prefix + 'comment',
+    fields: ['postId', 'name', 'email', 'body'],
+    api: 'http://jsonplaceholder.typicode.com/posts/{postId}/comments/'
+  });
 
-  strictEqual( results.length, 2 );
-  deepEqual( $.lastOptions.data, {} );
-  deepEqual( $.lastOptions.method, 'GET' );
+  var c0 = new Comment({
+    postId: 1,
+    name: 'Name #6',
+    email: 'email@domain.com',
+    body: 'Body #6'
+  });
+
+  var p0 = c0.$save();
+
+  expect(1);
+
+  p0.success(function() {
+    ok( c0.$isSaved() );
+    done();
+  });
+
+  p0.failure(function() {
+    ok( false );
+  });
 });
 
-test( 'search post', function(assert)
+test( 'global var', function(assert)
 {
-  var prefix = 'search_post_';
+  var done = assert.async();
+  var prefix = 'global_var_';
 
-  $.result = [
-    {id: 2, name: 't2', done: 1},
-    {id: 3, name: 't3', done: 0}
-  ];
+  Rekord.jQuery.vars.favePost = 2;
 
-  var Task = Rekord({
-    name: prefix + 'task',
-    fields: ['name', 'done'],
-    api: 'task'
+  var Comment = Rekord({
+    name: prefix + 'comment',
+    fields: ['postId', 'name', 'email', 'body'],
+    api: 'http://jsonplaceholder.typicode.com/posts/{postId}/comments/'
   });
 
-  var search = Task.search('/my/tasks', {}, {done: true}, true);
-  var results = search.$results;
+  var s0 = Comment.search('http://jsonplaceholder.typicode.com/posts/{favePost}/comments');
+  var p0 = s0.$run();
 
-  strictEqual( results.length, 2 );
-  deepEqual( $.lastOptions.data, {done: true} );
-  deepEqual( $.lastOptions.method, 'POST' );
+  expect(2);
+
+  p0.success(function() {
+    var first = s0.$results[0];
+    ok( first );
+    strictEqual( first.postId, Rekord.jQuery.vars.favePost );
+    done();
+  });
+
+  p0.failure(function() {
+    ok( false );
+  });
+});
+
+test( 'options var', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'options_var_';
+
+  var Comment = Rekord({
+    name: prefix + 'comment',
+    fields: ['postId', 'name', 'email', 'body'],
+    api: 'http://{base}/comments/'
+  });
+
+  expect(4);
+
+  Comment.fetch( 17, {vars:{base:'jsonplaceholder.typicode.com'}}, function(c0) {
+    ok( c0 );
+    strictEqual( c0.id, 17 );
+    strictEqual( c0.postId, 4 );
+    ok( c0.name );
+    done();
+  });
 });

@@ -24,29 +24,6 @@ function hasModel(rekord, key, model, message)
   strictEqual( rekord.Database.get( key ), model, message );
 }
 
-// Fake jQuery
-
-var $ = jQuery =
-{
-  ajax: function(options)
-  {
-    this.lastOptions = options;
-
-    if ( this.status === 200 )
-    {
-      options.success( this.result );
-    }
-    else
-    {
-      options.failure( this );
-    }
-  },
-
-  status: 200,
-
-  result: null
-};
-
 // Extending Assert
 
 QUnit.assert.timer = function()

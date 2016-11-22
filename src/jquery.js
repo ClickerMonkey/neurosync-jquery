@@ -23,9 +23,14 @@
 }(this, function(global, Rekord, $, undefined)
 {
 
+  var win = typeof window !== 'undefined' ? window : global; // jshint ignore:line
+
   var noop = Rekord.noop;
-  var isEmpty = Rekord.isEmpty;
   var transfer = Rekord.transfer;
+  var format = Rekord.format;
+  var isFormatInput = Rekord.isFormatInput;
+  var isEmpty = Rekord.isEmpty;
+  var isObject = Rekord.isObject;
 
   var Rekord_rest = Rekord.rest;
 
@@ -40,33 +45,54 @@
     {
       return x.charAt(x.length - 1) === '/' ? x.substring(0, x.length - 1) : x;
     },
-    all: function( success, failure )
+    buildURL: function(model)
     {
-      this.execute( 'GET', null, undefined, this.database.api, success, failure, [] );
+      return this.removeTrailingSlash( Rekord.jQuery.buildURL( this.database, model ) );
     },
-    get: function( model, success, failure )
+    all: function( options, success, failure )
     {
-      this.execute( 'GET', model, undefined, this.removeTrailingSlash( this.database.api + model.$key() ), success, failure );
+      this.execute( 'GET', null, undefined, this.buildURL(), options, success, failure, [] );
     },
-    create: function( model, encoded, success, failure )
+    get: function( model, options, success, failure )
     {
-      this.execute( 'POST', model, encoded, this.removeTrailingSlash( this.database.api ), success, failure, {} );
+      this.execute( 'GET', model, undefined, this.buildURL( model ), options, success, failure );
     },
-    update: function( model, encoded, success, failure )
+    create: function( model, encoded, options, success, failure )
     {
-      this.execute( 'PUT', model, encoded, this.removeTrailingSlash( this.database.api + model.$key() ), success, failure, {} );
+      this.execute( 'POST', model, encoded, this.buildURL(), options, success, failure, {} );
     },
-    remove: function( model, success, failure )
+    update: function( model, encoded, options, success, failure )
     {
-      this.execute( 'DELETE', model, undefined, this.removeTrailingSlash( this.database.api + model.$key() ), success, failure, {} );
+      this.execute( 'PUT', model, encoded, this.buildURL( model ), options, success, failure, {} );
     },
-    query: function( url, data, success, failure )
+    remove: function( model, options, success, failure )
+    {
+      this.execute( 'DELETE', model, undefined, this.buildURL( model ), options, success, failure, {} );
+    },
+    query: function( url, data, options, success, failure )
     {
       var method = isEmpty( data ) ? 'GET' : 'POST';
 
-      this.execute( method, null, data, url, success, failure );
+      this.execute( method, null, data, url, options, success, failure );
     },
-    execute: function( method, model, data, url, success, failure, offlineValue )
+    encode: function(params, prefix)
+    {
+      var str = [], p;
+
+      for (var p in params)
+      {
+        if ( params.hasOwnProperty( p ) )
+        {
+          var k = prefix ? prefix + '[' + p + ']' : p;
+          var v = params[ p ];
+
+          str.push( isObject( v ) ? this.encode(v, k) : win.encodeURIComponent( k ) + '=' + win.encodeURIComponent( v ) );
+        }
+      }
+
+      return str.join('&');
+    },
+    execute: function( method, model, data, url, extraOptions, success, failure, offlineValue )
     {
       Rekord.debug( Rekord.Debugs.REST, this, method, url, data );
 
@@ -86,17 +112,43 @@
           failure( null, jqXHR.status );
         };
 
+        var vars = transfer( Rekord.jQuery.vars, transfer( model, {} ) );
         var options = transfer( Rekord.jQuery.options, {
           method: method,
           data: data,
           url: url,
           success: onRestSuccess,
-          failure: onRestError,
+          error: onRestError,
           cache: false,
           dataType: 'json'
         });
 
-        Rekord.jQuery.adjustOptions( options, this.database, method, model, data, url, success, failure );
+        if ( isObject( extraOptions ) )
+        {
+          transfer( options, extraOptions );
+
+          if ( isObject( extraOptions.params ) )
+          {
+            var paramString = this.encode( extraOptions.params );
+            var queryIndex = options.url.indexOf('?');
+
+            options.url += queryIndex === -1 ? '?' : '&';
+            options.url += paramString;
+          }
+
+          if ( isObject( extraOptions.vars ) )
+          {
+            transfer( extraOptions.vars, vars );
+          }
+        }
+
+        Rekord.jQuery.adjustOptions( options, this.database, method, model, data, url, vars, extraOptions, success, failure );
+
+        if ( isFormatInput( options.url ) )
+        {
+          options.url = format( options.url, vars );
+        }
+
         Rekord.jQuery.ajax( options );
       }
     }
@@ -117,14 +169,21 @@
     $.ajax( options );
   }
 
+  function buildURL(db, model)
+  {
+    return model ? db.api + model.$key() : db.api;
+  }
+
   Rekord.setRest( RestFactory, true );
 
   Rekord.jQuery =
   {
     rest: RestFactory,
     options: {},
+    vars: {},
     adjustOptions: noop,
     ajax: ajax,
+    buildURL: buildURL,
     RestClass: Rest
   };
 
