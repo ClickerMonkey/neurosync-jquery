@@ -1,4 +1,4 @@
-/* rekord-jquery 1.5.0 - A rekord binding to jquery - implementing Rekord.rest by Philip Diffenderfer */
+/* rekord-jquery 1.5.6 - A rekord binding to jquery - implementing Rekord.rest by Philip Diffenderfer */
 // UMD (Universal Module Definition)
 (function (root, factory)
 {
@@ -175,6 +175,7 @@
     return model ? db.api + model.$key() : db.api;
   }
 
+  Rekord.Rests.jQuery = RestFactory;
   Rekord.setRest( RestFactory, true );
 
   Rekord.jQuery =

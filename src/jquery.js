@@ -174,6 +174,7 @@
     return model ? db.api + model.$key() : db.api;
   }
 
+  Rekord.Rests.jQuery = RestFactory;
   Rekord.setRest( RestFactory, true );
 
   Rekord.jQuery =
